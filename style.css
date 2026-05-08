@@ -10,118 +10,152 @@ body {
   margin: auto;
 }
 
-/* Heading */
 h2 {
   color: #5e2b4a;
-  margin-bottom: 5px;
 }
 
-#cycleInfo {
+.cycle-display {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #e88fa3;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+  font-size: 22px;
+}
+
+.hint {
+  font-size: 13px;
   color: #a06c8c;
-  margin-bottom: 15px;
+  text-align: center;
 }
 
-/* Calendar Header */
+/* Calendar */
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
-  font-weight: 600;
-  color: #5e2b4a;
+  margin: 15px 0;
 }
 
-.calendar-header button {
-  background: #e88fa3;
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.calendar-header button:hover {
-  opacity: 0.8;
-}
-
-/* Calendar Grid */
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  gap: 8px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  color: #a06c8c;
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .day {
-  padding: 12px;
+  padding: 10px;
   text-align: center;
-  background: #f6e9f2;
-  border-radius: 12px;
-  color: #5e2b4a;
+  background: #f3e5f5;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.day:hover {
-  transform: scale(1.05);
-}
-
-/* Selected days */
 .logged {
   background: #e88fa3;
   color: white;
-  box-shadow: 0 4px 10px rgba(232, 143, 163, 0.4);
 }
 
-/* Button */
-.main-btn {
-  width: 100%;
-  margin-top: 25px;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: #5e2b4a;
-  color: white;
-  font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.2s;
+.today {
+  border: 2px solid #5e2b4a;
 }
 
-.main-btn:hover {
-  background: #7a3a5d;
+/* Mood */
+.mood {
+  font-size: 12px;
 }
 
 /* Prediction */
 .prediction {
-  margin-top: 20px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f9eef4;
+  margin-top: 15px;
+  text-align: center;
   color: #5e2b4a;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* Late Status */
-#lateStatus {
-  margin-top: 6px;
-  font-weight: bold;
-}
-
+/* Button */
 .clear-btn {
   width: 100%;
   margin-top: 15px;
   padding: 12px;
-  border: 2px solid #e88fa3;
-  background: transparent;
-  color: #e88fa3;
+  border: none;
   border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
+  background: #5e2b4a;
+  color: white;
 }
 
-.clear-btn:hover {
+/* Mood popup */
+.mood-box {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.today-mood {
+  text-align: center;
+  margin: 15px 0;
+  padding: 10px;
+  background: #f9eef4;
+  border-radius: 12px;
+  color: #5e2b4a;
+}
+
+#todayMood {
+  font-size: 22px;
+  margin-top: 5px;
+}
+
+.mood-options {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mood-options button {
+  border: none;
+  background: #f3e5f5;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.mood-options button:hover {
   background: #e88fa3;
   color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+.insights {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f3e5f5;
+  border-radius: 10px;
+  color: #5e2b4a;
+  font-size: 14px;
 }
