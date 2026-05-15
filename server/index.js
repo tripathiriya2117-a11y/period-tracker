@@ -12,10 +12,8 @@ connectDB()
 const app = express()
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://period-tracker-riyatripathi.vercel.app'
-  ],
+  origin: 
+    'https://period-tracker-rose-nine.vercel.app/',
   credentials: true
 }))
 app.use(express.json())
