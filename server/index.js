@@ -12,8 +12,7 @@ connectDB()
 const app = express()
 
 app.use(cors({
-  origin: 
-    'https://period-tracker-rose-nine.vercel.app/',
+  origin: 'https://period-tracker-rose-nine.vercel.app',
   credentials: true
 }))
 app.use(express.json())
