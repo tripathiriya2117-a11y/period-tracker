@@ -16,7 +16,10 @@ function Dashboard() {
   const [selectedDate, setSelectedDate] = useState(new Date())
 
   useEffect(() => {
-    if (!user) { navigate('/login'); return }
+    if (!localStorage.getItem('token')) { 
+        navigate('/login')
+        return
+     }
     fetchCycles()
   }, [])
 
