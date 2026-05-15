@@ -1,3 +1,4 @@
+import BASE_URL from '../api'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
@@ -17,7 +18,7 @@ function Register() {
     setError('')
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axios.post('${BASE_URL}api/auth/register', {
         name,
         email,
         password

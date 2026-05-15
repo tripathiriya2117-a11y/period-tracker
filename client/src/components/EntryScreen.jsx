@@ -1,3 +1,4 @@
+import BASE_URL from '../api'
 import { useState } from 'react'
 import axios from 'axios'
 
@@ -39,7 +40,7 @@ function EntryScreen({ selectedDate, onNav, onSave }) {
     setError('')
     try {
       const token = localStorage.getItem('token')
-      await axios.post('/api/cycles', {
+      await axios.post('${BASE_URL}/api/cycles', {
         startDate,
         endDate: endDate || startDate,
         mood: mood || undefined,

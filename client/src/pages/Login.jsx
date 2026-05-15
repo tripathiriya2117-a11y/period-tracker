@@ -1,3 +1,4 @@
+import BASE_URL from '../api'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import axios from 'axios'
@@ -18,7 +19,7 @@ function Login() {
     setError('')
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('${BASE_URL}api/auth/login', {
         email,
         password
       })

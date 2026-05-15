@@ -1,3 +1,4 @@
+import BASE_URL from '../api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -5,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import HomeScreen from '../components/HomeScreen'
 import EntryScreen from '../components/EntryScreen'
 import InsightsScreen from '../components/InsightsScreen'
+import ChatBot from '../components/ChatBot'
 
 function Dashboard() {
   const { user, logout } = useAuth()
@@ -12,6 +14,7 @@ function Dashboard() {
   const [screen, setScreen] = useState('home')
   const [cycles, setCycles] = useState([])
   const [selectedDate, setSelectedDate] = useState(new Date())
+  const [showChat, setShowChat] = useState(false)
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -21,7 +24,7 @@ function Dashboard() {
   const fetchCycles = async () => {
     try {
       const token = localStorage.getItem('token')
-      const res = await axios.get('/api/cycles', {
+      const res = await axios.get('${BASE_URL}/api/cycles', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setCycles(res.data)
@@ -30,10 +33,7 @@ function Dashboard() {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+  const handleLogout = () => { logout(); navigate('/login') }
 
   return (
     <div className='dashboard'>
@@ -55,41 +55,28 @@ function Dashboard() {
         />
       )}
       {screen === 'insights' && (
-        <InsightsScreen
-          cycles={cycles}
-          onNav={setScreen}
-        />
+        <InsightsScreen cycles={cycles} onNav={setScreen} />
       )}
+
+      {showChat && <ChatBot onClose={() => setShowChat(false)} />}
 
       {/* Bottom Nav */}
       <nav className='bottom-nav'>
-        <button
-          className={`nav-btn ${screen === 'home' ? 'active' : ''}`}
-          onClick={() => setScreen('home')}
-        >
+        <button className={`nav-btn ${screen === 'home' ? 'active' : ''}`} onClick={() => setScreen('home')}>
           <span className='nav-btn-icon'>🏠</span>
           <span className='nav-btn-label'>Home</span>
         </button>
-        <button
-          className={`nav-btn ${screen === 'entry' ? 'active' : ''}`}
-          onClick={() => setScreen('entry')}
-        >
+        <button className={`nav-btn ${screen === 'entry' ? 'active' : ''}`} onClick={() => setScreen('entry')}>
           <span className='nav-btn-icon'>✏️</span>
           <span className='nav-btn-label'>Log</span>
         </button>
-        <button
-          className={`nav-btn ${screen === 'insights' ? 'active' : ''}`}
-          onClick={() => setScreen('insights')}
-        >
+        <button className={`nav-btn ${screen === 'insights' ? 'active' : ''}`} onClick={() => setScreen('insights')}>
           <span className='nav-btn-icon'>📊</span>
           <span className='nav-btn-label'>Insights</span>
         </button>
-        <button
-          className='nav-btn'
-          onClick={handleLogout}
-        >
-          <span className='nav-btn-icon'>👤</span>
-          <span className='nav-btn-label'>Logout</span>
+        <button className='nav-btn' onClick={() => setShowChat(true)}>
+          <span className='nav-btn-icon'>💬</span>
+          <span className='nav-btn-label'>Chat</span>
         </button>
       </nav>
     </div>
