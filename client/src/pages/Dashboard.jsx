@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import HomeScreen from '../components/HomeScreen'
 import EntryScreen from '../components/EntryScreen'
 import InsightsScreen from '../components/InsightsScreen'
-import ChatBot from '../components/ChatBot'
+
 
 function Dashboard() {
   const { user, logout } = useAuth()
@@ -14,7 +14,6 @@ function Dashboard() {
   const [screen, setScreen] = useState('home')
   const [cycles, setCycles] = useState([])
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [showChat, setShowChat] = useState(false)
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -58,7 +57,6 @@ function Dashboard() {
         <InsightsScreen cycles={cycles} onNav={setScreen} />
       )}
 
-      {showChat && <ChatBot onClose={() => setShowChat(false)} />}
 
       {/* Bottom Nav */}
       <nav className='bottom-nav'>
@@ -74,13 +72,10 @@ function Dashboard() {
           <span className='nav-btn-icon'>📊</span>
           <span className='nav-btn-label'>Insights</span>
         </button>
-        <button className='nav-btn' onClick={() => setShowChat(true)}>
-          <span className='nav-btn-icon'>💬</span>
-          <span className='nav-btn-label'>Chat</span>
-        </button>
       </nav>
     </div>
   )
 }
+
 
 export default Dashboard
