@@ -40,7 +40,7 @@ function EntryScreen({ selectedDate, onNav, onSave }) {
     setError('')
     try {
       const token = localStorage.getItem('token')
-      await axios.post('${BASE_URL}/api/cycles', {
+      await axios.post(`${BASE_URL}/api/cycles`, {
         startDate,
         endDate: endDate || startDate,
         mood: mood || undefined,

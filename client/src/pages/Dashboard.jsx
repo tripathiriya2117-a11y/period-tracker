@@ -24,7 +24,7 @@ function Dashboard() {
   const fetchCycles = async () => {
     try {
       const token = localStorage.getItem('token')
-      const res = await axios.get('${BASE_URL}/api/cycles', {
+      const res = await axios.get(`${BASE_URL}/api/cycles`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setCycles(res.data)
