@@ -1,28 +1,43 @@
-import { useEffect } from "react";
+import { useEffect } from 'react'
 
-export default function Chatbot() {
+function ChatBot() {
 
   useEffect(() => {
 
-    if (!document.getElementById("chatbase-script")) {
+    if (!window.chatbase || window.chatbase("getState") !== "initialized") {
 
-      const script = document.createElement("script");
+      window.chatbase = (...arguments) => {
+        if (!window.chatbase.q) {
+          window.chatbase.q = []
+        }
 
-      script.src = "https://www.chatbase.co/embed.min.js";
+        window.chatbase.q.push(arguments)
+      }
 
-      script.id = "chatbase-script";
+      window.chatbase = new Proxy(window.chatbase, {
+        get(target, prop) {
+          if (prop === "q") {
+            return target.q
+          }
 
-      script.setAttribute(
-        "chatbotId",
-        "9R9qVgqmywcu_yQabFiBH"
-      );
-
-      script.domain = "www.chatbase.co";
-
-      document.body.appendChild(script);
+          return (...args) => target(prop, ...args)
+        },
+      })
     }
 
-  }, []);
+    const script = document.createElement("script")
 
-  return null;
+    script.src = "https://www.chatbase.co/embed.min.js"
+
+    script.id = "9R9qVgqmywcu_yQabFiBH"
+
+    script.domain = "www.chatbase.co"
+
+    document.body.appendChild(script)
+
+  }, [])
+
+  return null
 }
+
+export default ChatBot
