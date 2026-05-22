@@ -75,6 +75,10 @@ function Dashboard() {
           <span className='nav-btn-icon'>📊</span>
           <span className='nav-btn-label'>Insights</span>
         </button>
+        <button className='nav-btn' onClick={() => setShowChat(true)}>
+          <span className='nav-btn-icon'>💬</span>
+          <span className='nav-btn-label'>Chat</span>
+        </button>
       </nav>
     </div>
   )
