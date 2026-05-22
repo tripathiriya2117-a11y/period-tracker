@@ -113,7 +113,7 @@ function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
         </div>
       </div>
 
-      <button className='fab' onClick={() => onNav('entry')}>+</button>
+      
     </div>
   )
 }

@@ -633,6 +633,7 @@ body {
   border-top: 1px solid #2a1f3d;
   display: flex;
   justify-content: space-around;
+  align-items: center;
   padding: 12px 0 20px;
   z-index: 40;
 }
