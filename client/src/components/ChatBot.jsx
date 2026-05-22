@@ -6,7 +6,7 @@ function ChatBot() {
 
     if (!window.chatbase || window.chatbase("getState") !== "initialized") {
 
-      window.chatbase = (...arguments) => {
+      window.chatbase = (...args) => {
         if (!window.chatbase.q) {
           window.chatbase.q = []
         }
