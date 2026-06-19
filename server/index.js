@@ -5,6 +5,7 @@ const path = require('path')
 const connectDB = require('./config/db')
 const authRoutes = require('./routes/authRoutes')  
 const cycleRoutes = require('./routes/cycleRoutes')
+const deviceRoutes = require('./routes/deviceRoutes')
 
 dotenv.config({ path: path.join(__dirname, '.env') })
 connectDB()
@@ -18,7 +19,7 @@ app.use(cors({
 app.use(express.json())
 app.use('/api/auth', authRoutes) 
 app.use('/api/cycles', cycleRoutes) 
-
+app.use('/api/device', deviceRoutes)
 app.get('/', (req, res) => {
   res.json({ message: 'Period Tracker API is running 🌸' })
 })
