@@ -23,8 +23,8 @@ function Login() {
          email,
          password
     })
-      localStorage.setItem('token', response.data.token)
-      localStorage.setItem('user', JSON.stringify(response.data))
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(res.data))
       navigate('/dashboard')
     } catch (error) {
       setError(error.response?.data?.message || 'Something went wrong')
