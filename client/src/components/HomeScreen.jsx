@@ -3,13 +3,7 @@ import { useState } from 'react'
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
-  const today = new Date()
-
-  const calDays = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(today)
-    d.setDate(today.getDate() - 7 + i)
-    return d
-  })
+  const [currentMonth, setCurrentMonth] = useState(new Date())
 
   const isPeriodDay = (date) => {
     const dateStr = date.toISOString().split('T')[0]
@@ -22,13 +16,39 @@ function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
     })
   }
 
-  const getCycleDay = () => {
-    if (cycles.length === 0) return null
-    const lastCycle = cycles[0]
-    const start = new Date(lastCycle.startDate)
-    const diff = Math.floor((today - start) / (1000 * 60 * 60 * 24))
-    return diff + 1
+  const getDaysInMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
   }
+
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
+  }
+
+  const generateCalendarDays = () => {
+    const daysInMonth = getDaysInMonth(currentMonth)
+    const firstDay = getFirstDayOfMonth(currentMonth)
+    const days = []
+
+    // Empty cells for days before month starts
+    for (let i = 0; i < firstDay; i++) {
+      days.push(null)
+    }
+
+    // Days of the month
+    for (let i = 1; i <= daysInMonth; i++) {
+      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i)
+      days.push(date)
+    }
+
+    return days
+  }
+
+  const calendarDays = generateCalendarDays()
+  const today = new Date()
+  const cycleDay = cycles.length > 0 ? Math.floor((today - new Date(cycles[0].startDate)) / (1000 * 60 * 60 * 24)) + 1 : null
+  const circumference = 2 * Math.PI * 54
+  const progress = cycleDay ? cycleDay / 28 : 0
+  const offset = circumference * (1 - progress)
 
   const getPhase = (day) => {
     if (!day) return 'No data yet'
@@ -38,10 +58,20 @@ function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
     return '🌙 Luteal Phase'
   }
 
-  const cycleDay = getCycleDay()
-  const circumference = 2 * Math.PI * 54
-  const progress = cycleDay ? cycleDay / 28 : 0
-  const offset = circumference * (1 - progress)
+  const handlePrevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+  }
+
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+  }
+
+  const handleDateClick = (date) => {
+    if (date) {
+      setSelectedDate(date)
+      onNav('entry')
+    }
+  }
 
   return (
     <div className='home'>
@@ -79,24 +109,116 @@ function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
         </div>
       </div>
 
-      {/* Calendar Strip */}
-      <div className='cal-strip-label'>Calendar</div>
-      <div className='cal-strip'>
-        {calDays.map((d, i) => {
-          const isSelected = d.toDateString() === selectedDate.toDateString()
-          const isPeriod = isPeriodDay(d)
-          return (
+      {/* Calendar */}
+      <div style={{ padding: '0 24px', marginBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <button
+            onClick={handlePrevMonth}
+            style={{
+              background: '#1a1425',
+              border: '1px solid #2a1f3d',
+              color: '#c9a6ff',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            ← Prev
+          </button>
+          <div style={{
+            fontSize: '1.1rem',
+            fontWeight: '600',
+            color: '#e8d5ff'
+          }}>
+            {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
+          </div>
+          <button
+            onClick={handleNextMonth}
+            style={{
+              background: '#1a1425',
+              border: '1px solid #2a1f3d',
+              color: '#c9a6ff',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Next →
+          </button>
+        </div>
+
+        {/* Day headers */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          gap: '4px',
+          marginBottom: '8px'
+        }}>
+          {DAYS.map(day => (
             <div
-              key={i}
-              className={`cal-day ${isSelected ? 'selected' : ''} ${isPeriod ? 'period-day' : ''}`}
-              onClick={() => { setSelectedDate(d); onNav('entry') }}
+              key={day}
+              style={{
+                textAlign: 'center',
+                fontSize: '0.75rem',
+                color: '#7a6990',
+                fontWeight: '600',
+                textTransform: 'uppercase'
+              }}
             >
-              <div className='cal-dow'>{DAYS[d.getDay()]}</div>
-              <div className='cal-num'>{d.getDate()}</div>
-              {isPeriod && <div className='cal-dot' />}
+              {day}
             </div>
-          )
-        })}
+          ))}
+        </div>
+
+        {/* Calendar grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          gap: '6px'
+        }}>
+          {calendarDays.map((date, i) => {
+            const isSelected = date && date.toDateString() === selectedDate.toDateString()
+            const isPeriod = date && isPeriodDay(date)
+            const isToday = date && date.toDateString() === today.toDateString()
+
+            return (
+              <div
+                key={i}
+                onClick={() => handleDateClick(date)}
+                style={{
+                  padding: '10px',
+                  borderRadius: '12px',
+                  background: isSelected
+                    ? 'linear-gradient(135deg, #7c3aed, #a855f7)'
+                    : isPeriod
+                    ? 'rgba(236, 72, 153, 0.2)'
+                    : '#1a1425',
+                  border: isSelected
+                    ? '1px solid #a855f7'
+                    : isPeriod
+                    ? '1px solid #ec4899'
+                    : '1px solid #2a1f3d',
+                  color: date ? '#c9a6ff' : 'transparent',
+                  textAlign: 'center',
+                  cursor: date ? 'pointer' : 'default',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s',
+                  boxShadow: isToday ? '0 0 8px rgba(168,85,247,0.5)' : 'none'
+                }}
+              >
+                {date ? date.getDate() : ''}
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Action Cards */}
@@ -113,7 +235,7 @@ function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
         </div>
       </div>
 
-      
+      <button className='fab' onClick={() => onNav('entry')}>+</button>
     </div>
   )
 }
