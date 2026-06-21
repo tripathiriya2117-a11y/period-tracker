@@ -1,4 +1,64 @@
+import { useState } from 'react'
+import axios from 'axios'
+import BASE_URL from '../api'
+
 function InsightsScreen({ cycles, onNav }) {
+  const [editingId, setEditingId] = useState(null)
+  const [editData, setEditData] = useState({})
+  const [deleting, setDeleting] = useState(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const moods = ['happy', 'calm', 'tired', 'irritable', 'sad']
+  const symptoms = ['cramps', 'headache', 'fatigue', 'bloating', 'backache', 'nausea', 'mood swings', 'spotting']
+
+  const handleEdit = (cycle) => {
+    setEditingId(cycle._id)
+    setEditData({
+      startDate: cycle.startDate.split('T')[0],
+      endDate: cycle.endDate ? cycle.endDate.split('T')[0] : '',
+      mood: cycle.mood || '',
+      symptoms: cycle.symptoms || [],
+      discharge: cycle.discharge || '',
+      notes: cycle.notes || ''
+    })
+  }
+
+  const handleSaveEdit = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      await axios.put(`${BASE_URL}/api/cycles/${editingId}`, editData, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setEditingId(null)
+      setRefreshKey(k => k + 1)
+      alert('✅ Cycle updated!')
+    } catch (err) {
+      alert('❌ Error: ' + (err.response?.data?.message || 'Failed to update'))
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure? This will delete this cycle log.')) return
+    try {
+      const token = localStorage.getItem('token')
+      await axios.delete(`${BASE_URL}/api/cycles/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setRefreshKey(k => k + 1)
+      alert('✅ Cycle deleted!')
+    } catch (err) {
+      alert('❌ Error: ' + (err.response?.data?.message || 'Failed to delete'))
+    }
+  }
+
+  const toggleSymptom = (s) => {
+    setEditData(prev => ({
+      ...prev,
+      symptoms: prev.symptoms.includes(s)
+        ? prev.symptoms.filter(x => x !== s)
+        : [...prev.symptoms, s]
+    }))
+  }
 
   const getAvgCycleLength = () => {
     if (cycles.length < 2) return '--'
@@ -9,8 +69,7 @@ function InsightsScreen({ cycles, onNav }) {
       const diff = Math.floor((curr - prev) / (1000 * 60 * 60 * 24))
       if (diff > 0 && diff < 60) lengths.push(diff)
     }
-    if (lengths.length === 0) return '--'
-    return Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length)
+    return lengths.length === 0 ? '--' : Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length)
   }
 
   const getAvgPeriodLength = () => {
@@ -34,137 +93,213 @@ function InsightsScreen({ cycles, onNav }) {
     return next
   }
 
-  const getDaysUntil = (date) => {
-    if (!date) return '--'
-    const today = new Date()
-    const diff = Math.floor((date - today) / (1000 * 60 * 60 * 24))
-    return diff
-  }
-
   const nextPeriod = getNextPeriod()
-  const daysUntil = getDaysUntil(nextPeriod)
-  const avgCycle = getAvgCycleLength()
-  const avgPeriod = getAvgPeriodLength()
-
-  // Build chart bars from last 7 cycles
-  const chartData = cycles.slice(0, 7).reverse().map((c, i) => {
-    const start = new Date(c.startDate)
-    const end = c.endDate ? new Date(c.endDate) : start
-    const len = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1
-    const month = start.toLocaleString('default', { month: 'short' })
-    return { len, month, highlight: i === cycles.slice(0, 7).length - 1 }
-  })
-
-  const maxLen = Math.max(...chartData.map(d => d.len), 1)
 
   return (
     <div className='insights'>
       <div className='insights-header'>
         <div className='insights-title'>Your Insights</div>
-        <div className='insights-sub'>
-          Based on {cycles.length} logged {cycles.length === 1 ? 'cycle' : 'cycles'}
-        </div>
+        <div className='insights-sub'>Based on {cycles.length} logged cycles</div>
       </div>
 
       <div className='insights-body'>
-
         {/* Prediction Card */}
         <div className='predict-card'>
           <div className='predict-label'>Next Period</div>
           <div className='predict-date'>
-            {nextPeriod
-              ? nextPeriod.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })
-              : 'Log a cycle to predict'}
+            {nextPeriod ? nextPeriod.toLocaleDateString('default', { month: 'long', day: 'numeric' }) : 'Log cycles to predict'}
           </div>
-          {nextPeriod && (
-            <div className='predict-days'>
-              {daysUntil > 0
-                ? `In ${daysUntil} days`
-                : daysUntil === 0
-                ? 'Today!'
-                : `${Math.abs(daysUntil)} days ago`}
-            </div>
-          )}
-          <div className='predict-badge'>
-            {cycles.length >= 2 ? '✦ High confidence' : '✦ Log more cycles for accuracy'}
-          </div>
+          <div className='predict-badge'>✦ High confidence</div>
         </div>
 
-        {/* Chart */}
-        {chartData.length > 0 && (
-          <div className='chart-card'>
-            <div className='chart-card-header'>
-              <div className='chart-title'>Period Duration History</div>
-              <div className='chart-period'>Last {chartData.length} cycles</div>
-            </div>
-            <div className='chart-area'>
-              {chartData.map((d, i) => (
-                <div key={i} className='chart-bar-wrap'>
-                  <div
-                    className={`chart-bar ${d.highlight ? 'highlight' : ''}`}
-                    style={{ height: `${(d.len / maxLen) * 100}%` }}
-                  />
-                  <div className='chart-bar-label'>{d.month}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Stat Cards */}
+        {/* Stats */}
         <div className='stat-cards'>
           <div className='stat-card'>
             <div className='stat-icon'>🔄</div>
-            <div className='stat-value'>{avgCycle}</div>
+            <div className='stat-value'>{getAvgCycleLength()}</div>
             <div className='stat-unit'>days avg</div>
             <div className='stat-label'>Cycle Length</div>
           </div>
           <div className='stat-card'>
             <div className='stat-icon'>🩸</div>
-            <div className='stat-value'>{avgPeriod}</div>
+            <div className='stat-value'>{getAvgPeriodLength()}</div>
             <div className='stat-unit'>days avg</div>
             <div className='stat-label'>Period Duration</div>
           </div>
         </div>
 
-        {/* Recent Logs */}
-        {cycles.length > 0 && (
-          <div className='chart-card'>
-            <div className='chart-card-header'>
-              <div className='chart-title'>Recent Logs</div>
-            </div>
-            {cycles.slice(0, 5).map((c, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '10px 0',
-                borderBottom: i < 4 ? '1px solid #1e1630' : 'none'
-              }}>
-                <div>
-                  <div style={{ fontSize: '0.85rem', color: '#e8d5ff', fontWeight: 500 }}>
-                    {new Date(c.startDate).toLocaleDateString('default', { month: 'short', day: 'numeric' })}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: '#7a6990', marginTop: 2 }}>
-                    {c.mood && `Mood: ${c.mood}`}
-                    {c.symptoms?.length > 0 && ` · ${c.symptoms.slice(0, 2).join(', ')}`}
-                  </div>
-                </div>
-                <div style={{
-                  background: 'rgba(236,72,153,0.15)',
-                  color: '#f472b6',
-                  fontSize: '0.72rem',
-                  padding: '4px 10px',
-                  borderRadius: '20px',
-                  fontWeight: 500
-                }}>
-                  {c.discharge || 'logged'}
-                </div>
-              </div>
-            ))}
+        {/* Recent Logs with Edit/Delete */}
+        <div className='chart-card'>
+          <div className='chart-card-header'>
+            <div className='chart-title'>Recent Cycles</div>
           </div>
-        )}
+          {cycles.length === 0 ? (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#7a6990' }}>
+              No cycles logged yet
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {cycles.map(cycle => (
+                <div key={cycle._id} style={{
+                  background: '#120e1c',
+                  border: '1px solid #2a1f3d',
+                  borderRadius: '12px',
+                  padding: '14px',
+                  display: editingId === cycle._id ? 'block' : 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  {editingId === cycle._id ? (
+                    // EDIT MODE
+                    <div style={{ width: '100%' }}>
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ fontSize: '0.75rem', color: '#7a6990' }}>Start Date</label>
+                        <input
+                          type='date'
+                          value={editData.startDate}
+                          onChange={e => setEditData({ ...editData, startDate: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: '#1a1425',
+                            border: '1px solid #2a1f3d',
+                            borderRadius: '8px',
+                            color: '#f0e6ff',
+                            marginTop: '4px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
 
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ fontSize: '0.75rem', color: '#7a6990' }}>Mood</label>
+                        <select
+                          value={editData.mood}
+                          onChange={e => setEditData({ ...editData, mood: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: '#1a1425',
+                            border: '1px solid #2a1f3d',
+                            borderRadius: '8px',
+                            color: '#f0e6ff',
+                            marginTop: '4px',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          <option value=''>Select mood</option>
+                          {moods.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                      </div>
+
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ fontSize: '0.75rem', color: '#7a6990' }}>Symptoms</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                          {symptoms.map(s => (
+                            <button
+                              key={s}
+                              onClick={() => toggleSymptom(s)}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: '16px',
+                                border: editData.symptoms.includes(s) ? '1px solid #ec4899' : '1px solid #2a1f3d',
+                                background: editData.symptoms.includes(s) ? 'rgba(236,72,153,0.15)' : '#1a1425',
+                                color: editData.symptoms.includes(s) ? '#f472b6' : '#7a6990',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: '500'
+                              }}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={handleSaveEdit}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontWeight: '600'
+                          }}
+                        >
+                          Save ✓
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            background: '#1a1425',
+                            border: '1px solid #2a1f3d',
+                            borderRadius: '8px',
+                            color: '#c9a6ff',
+                            cursor: 'pointer',
+                            fontWeight: '600'
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // VIEW MODE
+                    <>
+                      <div>
+                        <div style={{ fontSize: '0.9rem', color: '#e8d5ff', fontWeight: '600' }}>
+                          {new Date(cycle.startDate).toLocaleDateString('default', { month: 'short', day: 'numeric' })}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#7a6990', marginTop: '4px' }}>
+                          {cycle.mood && `Mood: ${cycle.mood}`}
+                          {cycle.symptoms?.length > 0 && ` · ${cycle.symptoms.slice(0, 2).join(', ')}`}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => handleEdit(cycle)}
+                          style={{
+                            padding: '6px 12px',
+                            background: '#1a1425',
+                            border: '1px solid #2a1f3d',
+                            borderRadius: '8px',
+                            color: '#c9a6ff',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            fontWeight: '600'
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(cycle._id)}
+                          style={{
+                            padding: '6px 12px',
+                            background: 'rgba(236,72,153,0.15)',
+                            border: '1px solid #ec4899',
+                            borderRadius: '8px',
+                            color: '#f472b6',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            fontWeight: '600'
+                          }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
