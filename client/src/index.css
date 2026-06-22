@@ -392,7 +392,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.95rem;
   outline: none;
-  color-scheme: dark;
+  color-scheme: light;
   transition: border-color 0.2s;
 }
 
