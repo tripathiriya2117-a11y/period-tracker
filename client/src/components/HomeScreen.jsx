@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import WellnessTips from './WellnessTips'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -108,6 +109,8 @@ function HomeScreen({ user, cycles, selectedDate, setSelectedDate, onNav }) {
           <div className='circle-phase'>{getPhase(cycleDay)}</div>
         </div>
       </div>
+
+      <WellnessTips cycleDay={cycleDay} />
 
       {/* Calendar */}
       <div style={{ padding: '0 24px', marginBottom: '24px' }}>
