@@ -7,6 +7,7 @@ function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [hasPCOD, setHasPCOD] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -18,17 +19,15 @@ function Register() {
     setError('')
 
     try {
-      const response = await axios.post(`${BASE_URL}api/auth/register`, {
+      const response = await axios.post(`${BASE_URL}/api/auth/register`, {
         name,
         email,
         password,
-        hasPCOD: false,
-        hasPCOS: false
+        hasPCOD
       })
 
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data))
-
       navigate('/dashboard')
 
     } catch (error) {
@@ -41,7 +40,7 @@ function Register() {
   return (
     <div className='auth-container'>
       <div className='auth-box'>
-        <h1>🌸 Period Tracker</h1>
+        <h1>🌸 FloraCycle</h1>
         <h2>Create Account</h2>
 
         {error && <div className='error'>{error}</div>}
@@ -68,25 +67,19 @@ function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          const [hasPCOD, setHasPCOD] = useState(false)
-          const [hasPCOS, setHasPCOS] = useState(false)
 
           <div className='checkbox-item'>
-          <input
-           type='checkbox'
-           id='pcod'
-           checked={hasPCOD}
-           onChange={(e) => setHasPCOD(e.target.checked)}
-          />
-         <label htmlFor='pcod' style={{ color: 'var(--text-secondary)', cursor: 'pointer' }}>
-           I have PCOD/PCOS
-         </label>
-         </div>
+            <input
+              type='checkbox'
+              id='pcod'
+              checked={hasPCOD}
+              onChange={(e) => setHasPCOD(e.target.checked)}
+            />
+            <label htmlFor='pcod' style={{ color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              I have PCOD/PCOS
+            </label>
+          </div>
 
-// Update axios.post to include:
-const res = await axios.post(`${BASE_URL}/api/auth/register`, {
-  name, email, password, hasPCOD, hasPCOS
-})
           <button type='submit' disabled={loading}>
             {loading ? 'Creating account...' : 'Register'}
           </button>
