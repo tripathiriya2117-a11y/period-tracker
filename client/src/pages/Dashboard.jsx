@@ -8,7 +8,7 @@ import EntryScreen from '../components/EntryScreen'
 import InsightsScreen from '../components/InsightsScreen'
 import ChatBot from '../components/ChatBot'
 import Settings from '../components/Settings'
-import WellnessTips from '../components/wellnessTips'
+import WellnessTips from '../components/WellnessTips'
 
 function Dashboard() {
   const { user, logout } = useAuth()
