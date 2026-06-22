@@ -21,7 +21,9 @@ function Register() {
       const response = await axios.post(`${BASE_URL}api/auth/register`, {
         name,
         email,
-        password
+        password,
+        hasPCOD: false,
+        hasPCOS: false
       })
 
       localStorage.setItem('token', response.data.token)
@@ -66,6 +68,25 @@ function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          const [hasPCOD, setHasPCOD] = useState(false)
+          const [hasPCOS, setHasPCOS] = useState(false)
+
+          <div className='checkbox-item'>
+          <input
+           type='checkbox'
+           id='pcod'
+           checked={hasPCOD}
+           onChange={(e) => setHasPCOD(e.target.checked)}
+          />
+         <label htmlFor='pcod' style={{ color: 'var(--text-secondary)', cursor: 'pointer' }}>
+           I have PCOD/PCOS
+         </label>
+         </div>
+
+// Update axios.post to include:
+const res = await axios.post(`${BASE_URL}/api/auth/register`, {
+  name, email, password, hasPCOD, hasPCOS
+})
           <button type='submit' disabled={loading}>
             {loading ? 'Creating account...' : 'Register'}
           </button>

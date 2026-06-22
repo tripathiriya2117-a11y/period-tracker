@@ -60,6 +60,7 @@ function Dashboard() {
       {screen === 'insights' && (
         <InsightsScreen cycles={cycles} onNav={setScreen} />
       )}
+      {screen === 'settings' && <Settings onNav={setScreen} />}
 
       {showChat && <ChatBot onClose={() => setShowChat(false)} />}
 
@@ -71,6 +72,10 @@ function Dashboard() {
         <button className={`nav-btn ${screen === 'entry' ? 'active' : ''}`} onClick={() => setScreen('entry')}>
           <span className='nav-btn-icon'>✏️</span>
           <span className='nav-btn-label'>Log</span>
+        </button>
+        <button className={`nav-btn ${screen === 'settings' ? 'active' : ''}`} onClick={() => setScreen('settings')}>
+          <span className='nav-btn-icon'>⚙️</span>
+          <span className='nav-btn-label'>Settings</span>
         </button>
         <button className={`nav-btn ${screen === 'insights' ? 'active' : ''}`} onClick={() => setScreen('insights')}>
           <span className='nav-btn-icon'>📊</span>
