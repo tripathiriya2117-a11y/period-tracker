@@ -4,7 +4,7 @@ const { registerUser, loginUser } = require('../controllers/authController')
 
 router.post('/register', registerUser)
 router.post('/login', loginUser)
-router.put('/profile', protect, async (req, res) => {
+router.put('/profile', async (req, res) => {
   try {
     const { cycleLength, hasPCOD } = req.body
     const user = await User.findByIdAndUpdate(
