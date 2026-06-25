@@ -24,7 +24,12 @@ const userSchema = new mongoose.Schema({
   },
   hasPCOD: {
     type: Boolean,
-    default: false}
+    default: false
+  },
+  cycleLength: {
+    type: Number,
+    default: 28
+  }
 })
 
 const User = mongoose.model('User', userSchema)

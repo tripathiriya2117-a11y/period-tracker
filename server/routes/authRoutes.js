@@ -1,10 +1,13 @@
 const express = require('express')
-const router = express.Router()  // was "route", should be "router"
+const router = express.Router()
 const { registerUser, loginUser } = require('../controllers/authController')
+const { protect } = require('../middleware/authMiddleware')
+const User = require('../models/User')
 
 router.post('/register', registerUser)
 router.post('/login', loginUser)
-router.put('/profile', async (req, res) => {
+
+router.put('/profile', protect, async (req, res) => {
   try {
     const { cycleLength, hasPCOD } = req.body
     const user = await User.findByIdAndUpdate(
@@ -14,6 +17,7 @@ router.put('/profile', async (req, res) => {
     )
     res.json(user)
   } catch (err) {
+    console.error(err)
     res.status(400).json({ message: 'Error updating profile' })
   }
 })
